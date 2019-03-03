@@ -19,11 +19,17 @@ public class Cluster {
     }
 
     public int extras() {
-        return getOrders().size() - getDealer().getMinQuota();
+        if (getOrders().size() - getDealer().getMinQuota() > 0) {
+            return getOrders().size() - getDealer().getMinQuota();
+        }
+        return 0;
     }
 
     public int capacity() {
-        return getDealer().getMaxQuota() - getOrders().size();
+        if (getDealer().getMaxQuota() - getOrders().size() > 0) {
+            return getDealer().getMaxQuota() - getOrders().size();
+        }
+        return 0;
     }
 
     public boolean hasCapacity() {
@@ -32,6 +38,18 @@ public class Cluster {
 
     public boolean hasExtras() {
         return extras() > 0;
+    }
+
+    public double captureFactor() {
+        int interval = getDealer().getMaxQuota() - getDealer().getMinQuota();
+        int capacity = capacity();
+        return (capacity) / (double) interval;
+    }
+
+    public double giveFactor() {
+        int interval = getDealer().getMaxQuota() - getDealer().getMinQuota();
+        int extras = extras();
+        return (extras) / (double) interval;
     }
 
     public Dealer getDealer() {

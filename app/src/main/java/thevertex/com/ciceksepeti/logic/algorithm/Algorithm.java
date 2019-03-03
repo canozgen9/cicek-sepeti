@@ -66,18 +66,20 @@ public class Algorithm {
     }
 
     public static void optimize() {
-        for (Cluster currentCluster : getClusters()) {
-            int currentBalance = getBalance(currentCluster);
-            Log.d("ALGORITHM_LOG", String.format("Exchange starting for %s with balance %d", currentCluster.getDealer().getName(), currentBalance));
-            while (currentBalance < 0) {
-                captureOptimalOrder(currentCluster);
-                currentBalance = getBalance(currentCluster);
+        for (int i = 0; i < getClusters().size(); i++) {
+            for (Cluster currentCluster : getClusters()) {
+                int currentBalance = getBalance(currentCluster);
+                Log.d("ALGORITHM_LOG", String.format("Exchange starting for %s with balance %d", currentCluster.getDealer().getName(), currentBalance));
+                while (currentCluster.captureFactor() > 0.3f) {
+                    captureOptimalOrder(currentCluster);
+                    currentBalance = getBalance(currentCluster);
+                }
+                while (currentCluster.giveFactor() > 0.3f) {
+                    giveOptimalOrder(currentCluster);
+                    currentBalance = getBalance(currentCluster);
+                }
+                Log.d("ALGORITHM_LOG", String.format("Exchange ended for %s with balance %d", currentCluster.getDealer().getName(), currentBalance));
             }
-            while (currentBalance > 0) {
-                giveOptimalOrder(currentCluster);
-                currentBalance = getBalance(currentCluster);
-            }
-            Log.d("ALGORITHM_LOG", String.format("Exchange ended for %s with balance %d", currentCluster.getDealer().getName(), currentBalance));
         }
     }
 
@@ -86,9 +88,9 @@ public class Algorithm {
         ArrayList<Cluster> others = new ArrayList<>();
         for (Cluster cluster : getClusters()) {
             if (cluster != base) {
-                if (cluster.hasCapacity()) {
-                    others.add(cluster);
-                }
+//                if (cluster.hasCapacity()) {
+                others.add(cluster);
+//                }
             }
         }
 
@@ -122,9 +124,9 @@ public class Algorithm {
         ArrayList<Cluster> others = new ArrayList<>();
         for (Cluster cluster : getClusters()) {
             if (cluster != base) {
-                if (cluster.hasExtras()) {
-                    others.add(cluster);
-                }
+//                if (cluster.hasExtras()) {
+                others.add(cluster);
+//                }
             }
         }
 
@@ -148,7 +150,7 @@ public class Algorithm {
             selectedCluster.getOrders().remove(selectedOrder);
             base.getOrders().add(selectedOrder);
         } else {
-            throw new Error("No closest order found.");
+//            throw new Error("No closest order found.");
         }
     }
 
@@ -177,6 +179,7 @@ public class Algorithm {
             text.append(String.format("<h2 style=\"color: #FF0000\">%s Dealer</h2>", cluster.getDealer().getName()));
             text.append(String.format("should handle between <b>%d-%d</b> orders,<br>", cluster.getDealer().getMinQuota(), cluster.getDealer().getMaxQuota()));
             text.append(String.format("is handling <b>%d</b> orders.<br>", cluster.getOrders().size()));
+            text.append(String.format("<i>GF</i> <b>%.2f</b>, <i>CF</i> %.2f<br>", cluster.giveFactor(), cluster.captureFactor()));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             textView.setText(Html.fromHtml(text.toString(), Html.FROM_HTML_MODE_COMPACT));

@@ -15,6 +15,11 @@
         tools:context=".ui.activities.MapsActivity" />
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#818181" />
+
+    <TextView
         android:id="@+id/infoTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
